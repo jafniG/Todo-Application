@@ -110,15 +110,19 @@ class ProfileScreen extends StatelessWidget {
                           text: profileController.username.value,
                         );
                     Get.defaultDialog(
-                      titlePadding: .all(20),
+                      titlePadding: .only(top: 20),
                       contentPadding: .all(20),
                       title: "Edit Username",
                       content: TextField(
                         controller: nameTxtController,
-                        decoration: InputDecoration(labelText: "New Username"),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "New Username",
+                        ),
                       ),
                       textConfirm: "Save",
                       buttonColor: Colors.deepPurple,
+
                       onConfirm: () {
                         profileController.updateUserName(
                           nameTxtController.text,
@@ -156,8 +160,8 @@ class ProfileScreen extends StatelessWidget {
                   title: Text("Logout"),
                   onTap: () {
                     Get.defaultDialog(
-                      contentPadding: .all(20),
-                      titlePadding: .all(10),
+                      contentPadding: .all(10),
+                      titlePadding: .only(top: 20),
                       buttonColor: Colors.deepPurple,
                       title: "Logout",
                       middleText: "Are you sure you want to logout?",
@@ -258,15 +262,19 @@ class ProfileScreen extends StatelessWidget {
                           text: profileController.username.value,
                         );
                     Get.defaultDialog(
-                      titlePadding: .all(20),
+                      titlePadding: .only(top: 20),
                       contentPadding: .all(20),
                       title: "Edit Username",
                       content: TextField(
                         controller: nameTxtController,
-                        decoration: InputDecoration(labelText: "New Username"),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          labelText: "New Username",
+                        ),
                       ),
                       textConfirm: "Save",
                       buttonColor: Colors.deepPurple,
+
                       onConfirm: () {
                         profileController.updateUserName(
                           nameTxtController.text,
@@ -304,8 +312,8 @@ class ProfileScreen extends StatelessWidget {
                   title: Text("Logout"),
                   onTap: () {
                     Get.defaultDialog(
-                      contentPadding: .all(20),
-                      titlePadding: .all(10),
+                      contentPadding: .all(10),
+                      titlePadding: .only(top: 20),
                       buttonColor: Colors.deepPurple,
                       title: "Logout",
                       middleText: "Are you sure you want to logout?",

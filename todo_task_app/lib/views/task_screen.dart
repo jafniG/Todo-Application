@@ -8,18 +8,58 @@ import 'package:todo_task_app/controller/task_controller.dart';
 import 'package:todo_task_app/models/project_data_model.dart';
 import 'package:todo_task_app/models/tasks_data_model.dart';
 
-class TaskScreen extends StatefulWidget {
+class TaskScreen extends StatelessWidget {
   const TaskScreen({super.key});
-  @override
-  State<TaskScreen> createState() => _TaskScreenState();
-}
-
-final TaskController controller = Get.find();
-
-class _TaskScreenState extends State<TaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text(
+          "My Tasks",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: .w600,
+            color: Colors.deepPurple.shade900,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.deepPurple),
+                foregroundColor: WidgetStatePropertyAll(Colors.white),
+                fixedSize: WidgetStatePropertyAll(Size(150, 10)),
+              ),
+              onPressed: () async {
+                controller.loadProjects();
+                if (controller.projectList.isEmpty) {
+                  Get.snackbar(
+                    "No Projects",
+                    "Create a project first before adding the tasks",
+                    backgroundColor: Colors.deepPurple.shade400,
+                    colorText: Colors.white,
+                  );
+                } else {
+                  Get.bottomSheet(
+                    SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: addTaskBottomSheet(),
+                      ),
+                    ),
+                    isScrollControlled: true,
+                  );
+                }
+              },
+              child: Text("Add Task"),
+            ),
+          ),
+        ],
+      ),
       body: ResponsiveBuilder(
         builder: (context, sizingInformation) {
           if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
@@ -49,14 +89,6 @@ class _TaskScreenState extends State<TaskScreen> {
               spacing: 10,
               mainAxisSize: .min,
               children: [
-                Text(
-                  "My Tasks",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: .w600,
-                    color: Colors.deepPurple.shade900,
-                  ),
-                ),
                 Row(
                   mainAxisAlignment: .spaceBetween,
                   children: [
@@ -72,42 +104,6 @@ class _TaskScreenState extends State<TaskScreen> {
                         style: TextStyle(color: Colors.red.shade900),
                         textAlign: .center,
                       ),
-                    ),
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          Colors.deepPurple,
-                        ),
-                        foregroundColor: WidgetStatePropertyAll(Colors.white),
-                        fixedSize: WidgetStatePropertyAll(Size(150, 10)),
-                      ),
-                      onPressed: () async {
-                        controller.loadProjects();
-
-                        if (controller.projectList.isEmpty) {
-                          Get.snackbar(
-                            "No Projects",
-                            "Create a project first before adding the tasks",
-                            backgroundColor: Colors.deepPurple.shade400,
-                            colorText: Colors.white,
-                          );
-                        } else {
-                          Get.bottomSheet(
-                            SingleChildScrollView(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                  bottom: MediaQuery.of(
-                                    context,
-                                  ).viewInsets.bottom,
-                                ),
-                                child: addTaskBottomSheet(),
-                              ),
-                            ),
-                            isScrollControlled: true,
-                          );
-                        }
-                      },
-                      child: Text("Add Task"),
                     ),
                   ],
                 ),
@@ -132,7 +128,6 @@ class _TaskScreenState extends State<TaskScreen> {
                       );
                       log("onAccept: $data");
                     },
-
                     builder: (context, candidateData, _) => Obx(() {
                       final tasks = controller.todoList
                           .where((element) => element.type == TaskType.todo)
@@ -327,47 +322,10 @@ class _TaskScreenState extends State<TaskScreen> {
 
       child: ListView(
         children: [
-          Row(
-            mainAxisAlignment: .spaceBetween,
-            children: [
-              Text(
-                "Todo",
-                style: TextStyle(color: Colors.red.shade900),
-                textAlign: .center,
-              ),
-              ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Colors.deepPurple),
-                  foregroundColor: WidgetStatePropertyAll(Colors.white),
-                  fixedSize: WidgetStatePropertyAll(Size(150, 10)),
-                ),
-                onPressed: () async {
-                  controller.loadProjects();
-
-                  if (controller.projectList.isEmpty) {
-                    Get.snackbar(
-                      "No Projects",
-                      "Create a project first before adding the tasks",
-                      backgroundColor: Colors.deepPurple.shade400,
-                      colorText: Colors.white,
-                    );
-                  } else {
-                    Get.bottomSheet(
-                      SingleChildScrollView(
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).viewInsets.bottom,
-                          ),
-                          child: addTaskBottomSheet(),
-                        ),
-                      ),
-                      isScrollControlled: true,
-                    );
-                  }
-                },
-                child: Text("Add Task"),
-              ),
-            ],
+          Text(
+            "Todo",
+            style: TextStyle(color: Colors.red.shade900),
+            textAlign: .center,
           ),
           SizedBox(height: 10),
           DragTarget<TasksDataModel>(
@@ -479,6 +437,8 @@ class _TaskScreenState extends State<TaskScreen> {
           SizedBox(height: 10),
           DragTarget<TasksDataModel>(
             onAccept: (data) async {
+              log("onAccept: $data");
+
               final task = data.copyWith(type: TaskType.completed);
               await controller.updateTask(task);
               Get.snackbar(
@@ -513,7 +473,121 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 
+  Widget testCard() {
+    return Draggable(
+      feedback: testCard2(),
+      data: Colors.amber,
+      child: Container(
+        width: 100,
+        height: 100,
+        color: Colors.orangeAccent,
+        child: const Center(child: Text('box')),
+      ),
+    );
+  }
+
+  Widget testCard2() {
+    return Material(
+      child: Container(
+        width: 150,
+        height: 150,
+        color: Colors.red,
+        child: const Center(child: Text('box')),
+      ),
+    );
+  }
+
   Widget taskCard(TasksDataModel task) {
+    return Draggable<TasksDataModel>(
+      data: task,
+      feedback: Transform.rotate(angle: 0.1, child: taskCard2(task)),
+      child: Material(
+        borderRadius: .circular(20),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: .circular(20),
+            color: Colors.white,
+          ),
+          width: 200,
+          padding: .all(10),
+          child: Column(
+            spacing: 8,
+            mainAxisSize: .min,
+            crossAxisAlignment: .start,
+            children: [
+              Row(
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      task.title ?? '',
+                      style: TextStyle(fontSize: 16, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+
+              Text(
+                maxLines: 2,
+                overflow: .ellipsis,
+                task.description ?? '',
+                style: TextStyle(fontSize: 14, fontWeight: .w400),
+              ),
+              SizedBox(height: 10),
+              Divider(),
+              Row(
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: .end,
+                    children: [
+                      Align(
+                        widthFactor: 0.6,
+                        child: CircleAvatar(
+                          radius: 14,
+                          backgroundImage: AssetImage(
+                            'assets/images/girl_avatar.png',
+                          ),
+                        ),
+                      ),
+                      Align(
+                        widthFactor: 0.4,
+                        child: CircleAvatar(
+                          radius: 14,
+                          backgroundImage: AssetImage(
+                            'assets/images/girl_avatar.png',
+                          ),
+                        ),
+                      ),
+                      Align(
+                        widthFactor: 0.4,
+                        child: CircleAvatar(
+                          radius: 14,
+                          backgroundImage: AssetImage(
+                            'assets/images/girl_avatar.png',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Row(
+                    spacing: 4,
+                    children: [
+                      Icon(Icons.date_range),
+                      Obx(() => Text(controller.date.value)),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget taskCard2(TasksDataModel task) {
     return Material(
       borderRadius: .circular(20),
       child: Container(
@@ -521,7 +595,7 @@ class _TaskScreenState extends State<TaskScreen> {
           borderRadius: .circular(20),
           color: Colors.white,
         ),
-        width: 200,
+        width: 400,
         padding: .all(10),
         child: Column(
           spacing: 8,
@@ -535,23 +609,6 @@ class _TaskScreenState extends State<TaskScreen> {
                   child: Text(
                     task.title ?? '',
                     style: TextStyle(fontSize: 16, color: Colors.black),
-                  ),
-                ),
-                Draggable<TasksDataModel>(
-                  data: task,
-                  feedback: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.drag_indicator),
-                  ),
-
-                  childWhenDragging: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.drag_indicator),
-                  ),
-
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.drag_indicator),
                   ),
                 ),
               ],
@@ -682,3 +739,5 @@ class _TaskScreenState extends State<TaskScreen> {
     );
   }
 }
+
+final TaskController controller = Get.find();

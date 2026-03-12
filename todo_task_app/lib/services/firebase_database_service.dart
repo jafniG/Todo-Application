@@ -49,8 +49,8 @@ class FirebaseDatabaseService {
 
     return users
         .add(tasks.toMap())
-        .then((value) => log("Project added successfully!"))
-        .catchError((error) => log("Failed to add project: $error"));
+        .then((value) => log("Task added successfully!"))
+        .catchError((error) => log("Failed to add task: $error"));
   }
 
   Future<void> updateTask({
