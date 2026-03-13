@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:todo_task_app/controller/profile_controller.dart';
+import 'package:todo_task_app/controller/providers/theme_provider.dart';
 import 'package:todo_task_app/views/login_screen.dart';
 import 'package:todo_task_app/views/task_screen.dart';
 
@@ -31,16 +33,25 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget mobileProfileView(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: .topLeft,
-              end: .bottomRight,
-              colors: [Colors.black, Colors.deepPurple],
-            ),
-          ),
+        Consumer<ThemeProvider>(
+          builder: (context, value, child) {
+            bool isDark = value.themeMode == ThemeMode.dark;
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: .topLeft,
+                  end: .bottomRight,
+                  colors: isDark
+                      ? [Colors.black, Colors.black]
+                      : [Colors.black, Colors.deepPurple],
+                ),
+              ),
+            );
+          },
         ),
         Positioned(
           left: 160,
@@ -61,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
           top: 200,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
 
               borderRadius: .circular(20),
             ),
@@ -73,9 +84,7 @@ class ProfileScreen extends StatelessWidget {
           left: 150,
           child: CircleAvatar(
             radius: 50,
-            backgroundImage: NetworkImage(
-              'https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-female-user-profile-vector-illustration-isolated-background-women-profile-sign-business-concept_157943-38866.jpg',
-            ),
+            backgroundImage: AssetImage('assets/images/girl_avatar.png'),
           ),
         ),
         Positioned(
@@ -102,7 +111,6 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
               Card(
-                color: Colors.white,
                 child: ListTile(
                   onTap: () {
                     TextEditingController nameTxtController =
@@ -136,35 +144,28 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               Card(
-                color: Theme.of(context).cardColor,
-                child: Obx(
-                  () => SwitchListTile(
-                    secondary: Icon(Icons.dark_mode),
-                    title: Text("Dark Mode"),
-                    value: profileController.isDark.value,
-                    onChanged: (value) {
-                      profileController.isDark.value = value;
-                      if (value) {
-                        Get.changeTheme(ThemeData.dark());
-                      } else {
-                        Get.changeTheme(ThemeData.light());
-                      }
-                    },
-                  ),
+                child: SwitchListTile(
+                  secondary: Icon(Icons.dark_mode),
+                  title: Text("Dark Mode"),
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) {
+                    themeProvider.toggleTheme();
+                  },
                 ),
               ),
               Card(
-                color: Colors.white,
                 child: ListTile(
                   leading: Icon(Icons.logout),
                   title: Text("Logout"),
                   onTap: () {
                     Get.defaultDialog(
+                      radius: 20,
                       contentPadding: .all(10),
                       titlePadding: .only(top: 20),
                       buttonColor: Colors.deepPurple,
                       title: "Logout",
                       middleText: "Are you sure you want to logout?",
+                      middleTextStyle: TextStyle(color: Colors.black),
                       textConfirm: "Yes",
                       textCancel: "No",
                       onConfirm: () {
@@ -183,16 +184,25 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget desktopProfileView(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return Stack(
       children: [
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: .topLeft,
-              end: .bottomRight,
-              colors: [Colors.black, Colors.deepPurple],
-            ),
-          ),
+        Consumer<ThemeProvider>(
+          builder: (context, value, child) {
+            bool isDark = value.themeMode == ThemeMode.dark;
+
+            return Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: .topLeft,
+                  end: .bottomRight,
+                  colors: isDark
+                      ? [Colors.black, Colors.grey.shade700]
+                      : [Colors.black, Colors.deepPurple],
+                ),
+              ),
+            );
+          },
         ),
         Positioned(
           left: 600,
@@ -214,7 +224,7 @@ class ProfileScreen extends StatelessWidget {
           child: Container(
             margin: .symmetric(horizontal: 300),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
 
               borderRadius: .circular(20),
             ),
@@ -254,7 +264,6 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             children: [
               Card(
-                color: Colors.white,
                 child: ListTile(
                   onTap: () {
                     TextEditingController nameTxtController =
@@ -288,35 +297,30 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
               Card(
-                color: Theme.of(context).cardColor,
-                child: Obx(
-                  () => SwitchListTile(
-                    secondary: Icon(Icons.dark_mode),
-                    title: Text("Dark Mode"),
-                    value: profileController.isDark.value,
-                    onChanged: (value) {
-                      profileController.isDark.value = value;
-                      if (value) {
-                        Get.changeTheme(ThemeData.dark());
-                      } else {
-                        Get.changeTheme(ThemeData.light());
-                      }
-                    },
-                  ),
+                child: SwitchListTile(
+                  secondary: Icon(Icons.dark_mode),
+                  title: Text("Dark Mode"),
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) {
+                    themeProvider.toggleTheme();
+                  },
                 ),
               ),
               Card(
-                color: Colors.white,
+                // color: Colors.white,
                 child: ListTile(
                   leading: Icon(Icons.logout),
                   title: Text("Logout"),
                   onTap: () {
                     Get.defaultDialog(
-                      contentPadding: .all(10),
+                      radius: 20,
+
+                      contentPadding: .all(20),
                       titlePadding: .only(top: 20),
                       buttonColor: Colors.deepPurple,
                       title: "Logout",
                       middleText: "Are you sure you want to logout?",
+                      middleTextStyle: TextStyle(color: Colors.black),
                       textConfirm: "Yes",
                       textCancel: "No",
                       onConfirm: () {

@@ -3,13 +3,17 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:todo_task_app/controller/providers/theme_provider.dart';
 import 'package:todo_task_app/controller/task_controller.dart';
 import 'package:todo_task_app/models/project_data_model.dart';
 import 'package:todo_task_app/models/tasks_data_model.dart';
 
 class TaskScreen extends StatelessWidget {
-  const TaskScreen({super.key});
+  TaskScreen({super.key});
+  final TaskController controller = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +24,7 @@ class TaskScreen extends StatelessWidget {
           style: TextStyle(
             fontSize: 22,
             fontWeight: .w600,
-            color: Colors.deepPurple.shade900,
+            // color: Colors.deepPurple.shade900,
           ),
         ),
         actions: [
@@ -89,64 +93,72 @@ class TaskScreen extends StatelessWidget {
               spacing: 10,
               mainAxisSize: .min,
               children: [
-                Row(
-                  mainAxisAlignment: .spaceBetween,
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade100,
-                        borderRadius: .circular(20),
-                      ),
-                      child: Text(
-                        "Todo",
-                        style: TextStyle(color: Colors.red.shade900),
-                        textAlign: .center,
-                      ),
+                Align(
+                  alignment: .bottomRight,
+                  child: Container(
+                    width: 80,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100,
+                      borderRadius: .circular(20),
                     ),
-                  ],
+                    child: Text(
+                      "Todo",
+                      style: TextStyle(color: Colors.red.shade900),
+                      textAlign: .center,
+                    ),
+                  ),
                 ),
 
-                Container(
-                  padding: .all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade100,
+                Consumer<ThemeProvider>(
+                  builder: (context, value, child) {
+                    bool isDark = value.themeMode == ThemeMode.dark;
+                    return Container(
+                      padding: .all(10),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.grey.shade900
+                            : Colors.red.shade100,
 
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
 
-                  child: DragTarget<TasksDataModel>(
-                    onAccept: (data) async {
-                      final task = data.copyWith(type: TaskType.todo);
-                      await controller.updateTask(task);
-                      Get.snackbar(
-                        "Task Updated!",
-                        "Task moved back to todo",
-                        backgroundColor: Colors.deepPurple.shade400,
-                        colorText: Colors.white,
-                      );
-                      log("onAccept: $data");
-                    },
-                    builder: (context, candidateData, _) => Obx(() {
-                      final tasks = controller.todoList
-                          .where((element) => element.type == TaskType.todo)
-                          .toList();
-                      return SizedBox(
-                        height: 210,
-                        child: ListView.separated(
-                          scrollDirection: .horizontal,
-                          itemBuilder: (context, index) {
-                            final task = tasks.elementAt(index);
-                            return Card(elevation: 4, child: taskCard(task));
-                          },
-                          separatorBuilder: (context, index) =>
-                              SizedBox(width: 10),
-                          itemCount: tasks.length,
-                        ),
-                      );
-                    }),
-                  ),
+                      child: DragTarget<TasksDataModel>(
+                        onAccept: (data) async {
+                          final task = data.copyWith(type: TaskType.todo);
+                          await controller.updateTask(task);
+                          Get.snackbar(
+                            "Task Updated!",
+                            "Task moved back to todo",
+                            backgroundColor: Colors.deepPurple.shade400,
+                            colorText: Colors.white,
+                          );
+                          log("onAccept: $data");
+                        },
+                        builder: (context, candidateData, _) => Obx(() {
+                          final tasks = controller.todoList
+                              .where((element) => element.type == TaskType.todo)
+                              .toList();
+                          return SizedBox(
+                            height: 210,
+                            child: ListView.separated(
+                              scrollDirection: .horizontal,
+                              itemBuilder: (context, index) {
+                                final task = tasks.elementAt(index);
+                                return Card(
+                                  elevation: 4,
+                                  child: taskCard(task),
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  SizedBox(width: 10),
+                              itemCount: tasks.length,
+                            ),
+                          );
+                        }),
+                      ),
+                    );
+                  },
                 ),
                 Row(
                   mainAxisAlignment: .spaceBetween,
@@ -156,7 +168,7 @@ class TaskScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: .w600,
-                        color: Colors.deepPurple.shade900,
+                        // color: Colors.deepPurple.shade900,
                       ),
                     ),
 
@@ -176,46 +188,57 @@ class TaskScreen extends StatelessWidget {
                   ],
                 ),
 
-                Container(
-                  padding: .all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade100,
+                Consumer<ThemeProvider>(
+                  builder: (context, value, child) {
+                    bool isDark = value.themeMode == ThemeMode.dark;
+                    return Container(
+                      padding: .all(10),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.grey.shade900
+                            : Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
 
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                      child: DragTarget<TasksDataModel>(
+                        onAccept: (data) async {
+                          final task = data.copyWith(type: TaskType.progress);
+                          await controller.updateTask(task);
+                          Get.snackbar(
+                            "Task Updated!",
+                            "Task moved to Inprogress",
+                            backgroundColor: Colors.deepPurple.shade400,
+                            colorText: Colors.white,
+                          );
+                          log("onAccept: $data");
+                        },
 
-                  child: DragTarget<TasksDataModel>(
-                    onAccept: (data) async {
-                      final task = data.copyWith(type: TaskType.progress);
-                      await controller.updateTask(task);
-                      Get.snackbar(
-                        "Task Updated!",
-                        "Task moved to Inprogress",
-                        backgroundColor: Colors.deepPurple.shade400,
-                        colorText: Colors.white,
-                      );
-                      log("onAccept: $data");
-                    },
-
-                    builder: (context, candidateData, _) => Obx(() {
-                      final tasks = controller.todoList
-                          .where((element) => element.type == TaskType.progress)
-                          .toList();
-                      return SizedBox(
-                        height: 210,
-                        child: ListView.separated(
-                          scrollDirection: .horizontal,
-                          itemBuilder: (context, index) {
-                            final task = tasks.elementAt(index);
-                            return Card(elevation: 4, child: taskCard(task));
-                          },
-                          separatorBuilder: (context, index) =>
-                              SizedBox(width: 10),
-                          itemCount: tasks.length,
-                        ),
-                      );
-                    }),
-                  ),
+                        builder: (context, candidateData, _) => Obx(() {
+                          final tasks = controller.todoList
+                              .where(
+                                (element) => element.type == TaskType.progress,
+                              )
+                              .toList();
+                          return SizedBox(
+                            height: 210,
+                            child: ListView.separated(
+                              scrollDirection: .horizontal,
+                              itemBuilder: (context, index) {
+                                final task = tasks.elementAt(index);
+                                return Card(
+                                  elevation: 4,
+                                  child: taskCard(task),
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  SizedBox(width: 10),
+                              itemCount: tasks.length,
+                            ),
+                          );
+                        }),
+                      ),
+                    );
+                  },
                 ),
                 Row(
                   mainAxisAlignment: .spaceBetween,
@@ -225,7 +248,7 @@ class TaskScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: .w600,
-                        color: Colors.deepPurple.shade900,
+                        // color: Colors.deepPurple.shade900,
                       ),
                     ),
                     Container(
@@ -243,48 +266,57 @@ class TaskScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                Container(
-                  padding: .all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade100,
+                Consumer<ThemeProvider>(
+                  builder: (context, value, child) {
+                    bool isDark = value.themeMode == ThemeMode.dark;
+                    return Container(
+                      padding: .all(10),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.grey.shade900
+                            : Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
 
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                      child: DragTarget<TasksDataModel>(
+                        onAccept: (data) async {
+                          final task = data.copyWith(type: TaskType.completed);
+                          await controller.updateTask(task);
+                          Get.snackbar(
+                            "Task Finished!",
+                            "Task moved to Completed",
+                            backgroundColor: Colors.deepPurple.shade400,
+                            colorText: Colors.white,
+                          );
+                          log("onAccept: $data");
+                        },
 
-                  child: DragTarget<TasksDataModel>(
-                    onAccept: (data) async {
-                      final task = data.copyWith(type: TaskType.completed);
-                      await controller.updateTask(task);
-                      Get.snackbar(
-                        "Task Finished!",
-                        "Task moved to Completed",
-                        backgroundColor: Colors.deepPurple.shade400,
-                        colorText: Colors.white,
-                      );
-                      log("onAccept: $data");
-                    },
-
-                    builder: (context, candidateData, _) => Obx(() {
-                      final tasks = controller.todoList
-                          .where(
-                            (element) => element.type == TaskType.completed,
-                          )
-                          .toList();
-                      return SizedBox(
-                        height: 210,
-                        child: ListView.separated(
-                          scrollDirection: .horizontal,
-                          itemBuilder: (context, index) {
-                            final task = tasks.elementAt(index);
-                            return Card(elevation: 4, child: taskCard(task));
-                          },
-                          separatorBuilder: (context, index) =>
-                              SizedBox(width: 10),
-                          itemCount: tasks.length,
-                        ),
-                      );
-                    }),
-                  ),
+                        builder: (context, candidateData, _) => Obx(() {
+                          final tasks = controller.todoList
+                              .where(
+                                (element) => element.type == TaskType.completed,
+                              )
+                              .toList();
+                          return SizedBox(
+                            height: 210,
+                            child: ListView.separated(
+                              scrollDirection: .horizontal,
+                              itemBuilder: (context, index) {
+                                final task = tasks.elementAt(index);
+                                return Card(
+                                  elevation: 4,
+                                  child: taskCard(task),
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  SizedBox(width: 10),
+                              itemCount: tasks.length,
+                            ),
+                          );
+                        }),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -312,277 +344,318 @@ class TaskScreen extends StatelessWidget {
   }
 
   Widget todoTaskCard() {
-    return Container(
-      padding: .all(10),
-      decoration: BoxDecoration(
-        color: Colors.red.shade100,
-
-        borderRadius: BorderRadius.circular(10),
-      ),
-
-      child: ListView(
-        children: [
-          Text(
-            "Todo",
-            style: TextStyle(color: Colors.red.shade900),
-            textAlign: .center,
+    return Consumer<ThemeProvider>(
+      builder: (context, value, child) {
+        bool isDark = value.themeMode == ThemeMode.dark;
+        return Container(
+          padding: .all(10),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey.shade900 : Colors.red.shade100,
+            borderRadius: BorderRadius.circular(10),
           ),
-          SizedBox(height: 10),
-          DragTarget<TasksDataModel>(
-            onAccept: (data) async {
-              final task = data.copyWith(type: TaskType.todo);
-              await controller.updateTask(task);
-              Get.snackbar(
-                "Task Updated!",
-                "Task moved back to todo",
-                backgroundColor: Colors.deepPurple.shade400,
-                colorText: Colors.white,
-              );
-              log("onAccept: $data");
-            },
 
-            builder: (context, candidateData, _) => Obx(() {
-              final tasks = controller.todoList
-                  .where((element) => element.type == TaskType.todo)
-                  .toList();
-              return SizedBox(
-                height: 600,
-                child: ListView.separated(
-                  scrollDirection: .vertical,
-                  itemBuilder: (context, index) {
-                    final task = tasks.elementAt(index);
-                    return Card(elevation: 4, child: taskCard(task));
-                  },
-                  separatorBuilder: (context, index) => SizedBox(height: 10),
-                  itemCount: tasks.length,
+          child: ListView(
+            children: [
+              Align(
+                alignment: .bottomRight,
+                child: Container(
+                  width: 110,
+                  height: 25,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: .circular(20),
+                  ),
+                  child: Text(
+                    "Todo",
+                    style: TextStyle(color: Colors.red.shade900),
+                    textAlign: .center,
+                  ),
                 ),
-              );
-            }),
+              ),
+              SizedBox(height: 10),
+              DragTarget<TasksDataModel>(
+                onAccept: (data) async {
+                  final task = data.copyWith(type: TaskType.todo);
+                  await controller.updateTask(task);
+                  Get.snackbar(
+                    "Task Updated!",
+                    "Task moved back to todo",
+                    backgroundColor: Colors.deepPurple.shade400,
+                    colorText: Colors.white,
+                  );
+                  log("onAccept: $data");
+                },
+
+                builder: (context, candidateData, _) => Obx(() {
+                  final tasks = controller.todoList
+                      .where((element) => element.type == TaskType.todo)
+                      .toList();
+                  return SizedBox(
+                    height: 600,
+                    child: ListView.separated(
+                      scrollDirection: .vertical,
+                      itemBuilder: (context, index) {
+                        final task = tasks.elementAt(index);
+                        return Card(elevation: 4, child: taskCard(task));
+                      },
+                      separatorBuilder: (context, index) =>
+                          SizedBox(height: 10),
+                      itemCount: tasks.length,
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget inprogressTaskcard() {
-    return Container(
-      padding: .all(10),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade100,
+    return Consumer<ThemeProvider>(
+      builder: (context, value, child) {
+        bool isDark = value.themeMode == ThemeMode.dark;
+        return Container(
+          padding: .all(10),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey.shade900 : Colors.blue.shade100,
 
-        borderRadius: BorderRadius.circular(10),
-      ),
-
-      child: ListView(
-        children: [
-          Text(
-            "Inprogress",
-            style: TextStyle(color: Colors.blue.shade900),
-            textAlign: .center,
+            borderRadius: BorderRadius.circular(10),
           ),
-          SizedBox(height: 10),
 
-          DragTarget<TasksDataModel>(
-            onAccept: (data) async {
-              final task = data.copyWith(type: TaskType.progress);
-              await controller.updateTask(task);
-              Get.snackbar(
-                "Task Updated!",
-                "Task moved to Inprogress",
-                backgroundColor: Colors.deepPurple.shade400,
-                colorText: Colors.white,
-              );
-              log("onAccept: $data");
-            },
-
-            builder: (context, candidateData, _) => Obx(() {
-              final tasks = controller.todoList
-                  .where((element) => element.type == TaskType.progress)
-                  .toList();
-              return SizedBox(
-                height: 600,
-                child: ListView.separated(
-                  scrollDirection: .vertical,
-                  itemBuilder: (context, index) {
-                    final task = tasks.elementAt(index);
-                    return Card(elevation: 4, child: taskCard(task));
-                  },
-                  separatorBuilder: (context, index) => SizedBox(width: 10),
-                  itemCount: tasks.length,
+          child: ListView(
+            children: [
+              Align(
+                alignment: .bottomRight,
+                child: Container(
+                  width: 110,
+                  height: 25,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade100,
+                    borderRadius: .circular(20),
+                  ),
+                  child: Text(
+                    "Inprogress",
+                    style: TextStyle(color: Colors.blue.shade900),
+                    textAlign: .center,
+                  ),
                 ),
-              );
-            }),
+              ),
+              SizedBox(height: 10),
+
+              DragTarget<TasksDataModel>(
+                onAccept: (data) async {
+                  final task = data.copyWith(type: TaskType.progress);
+                  await controller.updateTask(task);
+                  Get.snackbar(
+                    "Task Updated!",
+                    "Task moved to Inprogress",
+                    backgroundColor: Colors.deepPurple.shade400,
+                    colorText: Colors.white,
+                  );
+                  log("onAccept: $data");
+                },
+
+                builder: (context, candidateData, _) => Obx(() {
+                  final tasks = controller.todoList
+                      .where((element) => element.type == TaskType.progress)
+                      .toList();
+                  return SizedBox(
+                    height: 600,
+                    child: ListView.separated(
+                      scrollDirection: .vertical,
+                      itemBuilder: (context, index) {
+                        final task = tasks.elementAt(index);
+                        return Card(elevation: 4, child: taskCard(task));
+                      },
+                      separatorBuilder: (context, index) => SizedBox(width: 10),
+                      itemCount: tasks.length,
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget completedTaskCard() {
-    return Container(
-      padding: .all(10),
-      decoration: BoxDecoration(
-        color: Colors.green.shade100,
-
-        borderRadius: BorderRadius.circular(10),
-      ),
-
-      child: ListView(
-        children: [
-          Text(
-            "Completed",
-            style: TextStyle(color: Colors.green.shade900),
-            textAlign: .center,
+    return Consumer<ThemeProvider>(
+      builder: (context, value, child) {
+        bool isDark = value.themeMode == ThemeMode.dark;
+        return Container(
+          padding: .all(10),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey.shade900 : Colors.green.shade100,
+            borderRadius: BorderRadius.circular(10),
           ),
-          SizedBox(height: 10),
-          DragTarget<TasksDataModel>(
-            onAccept: (data) async {
-              log("onAccept: $data");
 
-              final task = data.copyWith(type: TaskType.completed);
-              await controller.updateTask(task);
-              Get.snackbar(
-                "Task Finished!",
-                "Task moved to Completed",
-                backgroundColor: Colors.deepPurple.shade400,
-                colorText: Colors.white,
-              );
-              log("onAccept: $data");
-            },
-
-            builder: (context, candidateData, _) => Obx(() {
-              final tasks = controller.todoList
-                  .where((element) => element.type == TaskType.completed)
-                  .toList();
-              return SizedBox(
-                height: 600,
-                child: ListView.separated(
-                  scrollDirection: .vertical,
-                  itemBuilder: (context, index) {
-                    final task = tasks.elementAt(index);
-                    return Card(elevation: 4, child: taskCard(task));
-                  },
-                  separatorBuilder: (context, index) => SizedBox(width: 10),
-                  itemCount: tasks.length,
+          child: ListView(
+            children: [
+              Align(
+                alignment: .bottomRight,
+                child: Container(
+                  width: 110,
+                  height: 25,
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade100,
+                    borderRadius: .circular(20),
+                  ),
+                  child: Text(
+                    "Completed",
+                    style: TextStyle(color: Colors.green.shade900),
+                    textAlign: .center,
+                  ),
                 ),
-              );
-            }),
+              ),
+              SizedBox(height: 10),
+              DragTarget<TasksDataModel>(
+                onAccept: (data) async {
+                  log("onAccept: $data");
+
+                  final task = data.copyWith(type: TaskType.completed);
+                  await controller.updateTask(task);
+                  Get.snackbar(
+                    "Task Finished!",
+                    "Task moved to Completed",
+                    backgroundColor: Colors.deepPurple.shade400,
+                    colorText: Colors.white,
+                  );
+                  log("onAccept: $data");
+                },
+
+                builder: (context, candidateData, _) => Obx(() {
+                  final tasks = controller.todoList
+                      .where((element) => element.type == TaskType.completed)
+                      .toList();
+                  return SizedBox(
+                    height: 600,
+                    child: ListView.separated(
+                      scrollDirection: .vertical,
+                      itemBuilder: (context, index) {
+                        final task = tasks.elementAt(index);
+                        return Card(elevation: 4, child: taskCard(task));
+                      },
+                      separatorBuilder: (context, index) => SizedBox(width: 10),
+                      itemCount: tasks.length,
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget testCard() {
-    return Draggable(
-      feedback: testCard2(),
-      data: Colors.amber,
-      child: Container(
-        width: 100,
-        height: 100,
-        color: Colors.orangeAccent,
-        child: const Center(child: Text('box')),
-      ),
-    );
-  }
-
-  Widget testCard2() {
-    return Material(
-      child: Container(
-        width: 150,
-        height: 150,
-        color: Colors.red,
-        child: const Center(child: Text('box')),
-      ),
+        );
+      },
     );
   }
 
   Widget taskCard(TasksDataModel task) {
-    return Draggable<TasksDataModel>(
-      data: task,
-      feedback: Transform.rotate(angle: 0.1, child: taskCard2(task)),
-      child: Material(
-        borderRadius: .circular(20),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: .circular(20),
-            color: Colors.white,
-          ),
-          width: 200,
-          padding: .all(10),
-          child: Column(
-            spacing: 8,
-            mainAxisSize: .min,
-            crossAxisAlignment: .start,
-            children: [
-              Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      task.title ?? '',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+    return Material(
+      borderRadius: .circular(20),
+      child: Consumer<ThemeProvider>(
+        builder: (context, value, child) {
+          bool isDark = value.themeMode == ThemeMode.dark;
+          return Container(
+            decoration: BoxDecoration(
+              borderRadius: .circular(20),
+              color: isDark ? Colors.grey.shade800 : Colors.white,
+            ),
+            width: 200,
+            padding: .all(10),
+            child: Column(
+              spacing: 8,
+              mainAxisSize: .min,
+              crossAxisAlignment: .start,
+              children: [
+                Row(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        task.projects?.title ?? 'N/A',
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
-                  ),
-                ],
-              ),
 
-              Text(
-                maxLines: 2,
-                overflow: .ellipsis,
-                task.description ?? '',
-                style: TextStyle(fontSize: 14, fontWeight: .w400),
-              ),
-              SizedBox(height: 10),
-              Divider(),
-              Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: .end,
-                    children: [
-                      Align(
-                        widthFactor: 0.6,
-                        child: CircleAvatar(
-                          radius: 14,
-                          backgroundImage: AssetImage(
-                            'assets/images/girl_avatar.png',
-                          ),
-                        ),
+                    Draggable<TasksDataModel>(
+                      data: task,
+                      feedback: Transform.rotate(
+                        angle: 0.1,
+                        child: taskCard2(task),
                       ),
-                      Align(
-                        widthFactor: 0.4,
-                        child: CircleAvatar(
-                          radius: 14,
-                          backgroundImage: AssetImage(
-                            'assets/images/girl_avatar.png',
-                          ),
-                        ),
-                      ),
-                      Align(
-                        widthFactor: 0.4,
-                        child: CircleAvatar(
-                          radius: 14,
-                          backgroundImage: AssetImage(
-                            'assets/images/girl_avatar.png',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
 
-                  Row(
-                    spacing: 4,
-                    children: [
-                      Icon(Icons.date_range),
-                      Obx(() => Text(controller.date.value)),
-                    ],
+                      child: Icon(Icons.drag_indicator),
+                    ),
+                  ],
+                ),
+
+                Text(task.title ?? '', style: TextStyle(fontSize: 16)),
+                Text(
+                  maxLines: 2,
+                  overflow: .ellipsis,
+                  task.description ?? '',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: .w400,
+                    // color: Colors.black,
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
+                ),
+                SizedBox(height: 10),
+                Divider(),
+                Row(
+                  mainAxisAlignment: .spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: .end,
+                      children: [
+                        Align(
+                          widthFactor: 0.6,
+                          child: CircleAvatar(
+                            radius: 14,
+                            backgroundImage: AssetImage(
+                              'assets/images/girl_avatar.png',
+                            ),
+                          ),
+                        ),
+                        Align(
+                          widthFactor: 0.4,
+                          child: CircleAvatar(
+                            radius: 14,
+                            backgroundImage: AssetImage(
+                              'assets/images/girl_avatar.png',
+                            ),
+                          ),
+                        ),
+                        Align(
+                          widthFactor: 0.4,
+                          child: CircleAvatar(
+                            radius: 14,
+                            backgroundImage: AssetImage(
+                              'assets/images/girl_avatar.png',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      spacing: 4,
+                      children: [
+                        Icon(Icons.date_range),
+                        Obx(
+                          () => Text(controller.date.value, style: TextStyle()),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -686,7 +759,10 @@ class TaskScreen extends StatelessWidget {
         spacing: 10,
         crossAxisAlignment: .start,
         children: [
-          Text("Projects:", style: TextStyle(fontSize: 20)),
+          Text(
+            "Projects:",
+            style: TextStyle(fontSize: 20, color: Colors.black),
+          ),
           Obx(
             () => DropdownButtonFormField<ProjectDataModel>(
               hint: Text("Select project"),
@@ -703,12 +779,15 @@ class TaskScreen extends StatelessWidget {
               decoration: InputDecoration(border: OutlineInputBorder()),
             ),
           ),
-          Text("Title:", style: TextStyle(fontSize: 20)),
+          Text("Title:", style: TextStyle(fontSize: 20, color: Colors.black)),
           TextFormField(
             controller: titleTxtController,
             decoration: InputDecoration(border: OutlineInputBorder()),
           ),
-          Text("Description:", style: TextStyle(fontSize: 20)),
+          Text(
+            "Description:",
+            style: TextStyle(fontSize: 20, color: Colors.black),
+          ),
           TextFormField(
             controller: descriptionTxtController,
             decoration: InputDecoration(border: OutlineInputBorder()),
@@ -725,6 +804,7 @@ class TaskScreen extends StatelessWidget {
                 final task = TasksDataModel(
                   title: titleTxtController.text,
                   description: descriptionTxtController.text,
+                  projects: controller.selectedProject.value,
                   type: TaskType.todo,
                 );
 
@@ -739,5 +819,3 @@ class TaskScreen extends StatelessWidget {
     );
   }
 }
-
-final TaskController controller = Get.find();

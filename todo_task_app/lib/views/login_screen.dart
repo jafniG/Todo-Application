@@ -169,6 +169,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     child: ElevatedButton(
+                      style: ButtonStyle(
+                        fixedSize: WidgetStatePropertyAll(Size(500, 40)),
+                        backgroundColor: WidgetStatePropertyAll(
+                          Colors.transparent,
+                        ),
+                        shadowColor: WidgetStatePropertyAll(Colors.transparent),
+                        foregroundColor: WidgetStatePropertyAll(Colors.white),
+                        shape: WidgetStatePropertyAll(
+                          RoundedRectangleBorder(borderRadius: .circular(12)),
+                        ),
+                      ),
                       onPressed: () async {
                         final isValid =
                             widget.loginFormKey.currentState?.validate() ??
@@ -267,6 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontWeight: .w700,
                   ),
                 ),
+                SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.only(left: 80),
                   child: Text(
@@ -392,6 +404,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         child: ElevatedButton(
+                          style: ButtonStyle(
+                            fixedSize: WidgetStatePropertyAll(Size(500, 40)),
+                            backgroundColor: WidgetStatePropertyAll(
+                              Colors.transparent,
+                            ),
+                            shadowColor: WidgetStatePropertyAll(
+                              Colors.transparent,
+                            ),
+                            foregroundColor: WidgetStatePropertyAll(
+                              Colors.white,
+                            ),
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: .circular(12),
+                              ),
+                            ),
+                          ),
                           onPressed: () async {
                             final isValid =
                                 widget.loginFormKey.currentState?.validate() ??

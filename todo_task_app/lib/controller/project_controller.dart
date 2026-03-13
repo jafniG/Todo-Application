@@ -13,8 +13,8 @@ class ProjectController extends GetxController {
 
   @override
   void onInit() {
-    getProject();
     super.onInit();
+    getProject();
   }
 
   Future<void> addProject(ProjectDataModel project) async {

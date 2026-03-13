@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_task_app/controller/providers/theme_provider.dart';
 import 'package:todo_task_app/controller/task_controller.dart';
 import 'package:todo_task_app/views/profile_screen.dart';
 import 'package:todo_task_app/views/project_dashboard.dart';
 import 'package:todo_task_app/views/task_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   final TaskController controller = Get.find();
 
   @override
@@ -29,7 +26,10 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedItemColor: Colors.deepPurple,
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(icon: Icon(Icons.checklist), label: "Tasks"),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.checklist),
+              label: "Tasks",
+            ),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
           ],
         ),

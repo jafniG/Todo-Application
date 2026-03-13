@@ -1,6 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_task_app/Theme/app_theme.dart';
 import 'package:todo_task_app/bindings/home_binding.dart';
+import 'package:todo_task_app/controller/providers/theme_provider.dart';
 import 'package:todo_task_app/controller/task_controller.dart';
 import 'package:todo_task_app/firebase_options.dart';
 import 'package:todo_task_app/route_names/route_name.dart';
@@ -12,7 +15,12 @@ import 'package:get/get.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,28 +28,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ToDo App',
       // darkTheme: ThemeData(cardColor: Colors.black),
-      theme: ThemeData(
-        fontFamily: "Poppins",
-        cardColor: Colors.white,
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ButtonStyle(
-            fixedSize: WidgetStatePropertyAll(Size(500, 40)),
-            backgroundColor: WidgetStatePropertyAll(Colors.transparent),
-            shadowColor: WidgetStatePropertyAll(Colors.transparent),
-            foregroundColor: WidgetStatePropertyAll(Colors.white),
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: .circular(12)),
-            ),
-          ),
-        ),
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: AppTheme().lightTheme,
+      darkTheme: AppTheme().darkTheme,
+      themeMode: themeProvider.themeMode,
       initialBinding: HomeBinding(),
-      initialRoute: RouteName.KSplash,
+      initialRoute: RouteName.kSplash,
       getPages: getPages,
     );
   }

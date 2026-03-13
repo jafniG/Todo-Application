@@ -17,10 +17,10 @@ class _SplashScreenState extends State<SplashScreen> {
     return FutureBuilder(
       future: UserPreference.checkExistingUser().then((value) {
         if (value) {
-          Get.to(HomeScreen());
+          Get.to(() => HomeScreen());
           return;
         }
-        Get.to(LoginScreen());
+        Get.to(() => LoginScreen());
       }),
       builder: (context, asyncSnapshot) {
         return Scaffold(
@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Row(
                 mainAxisAlignment: .center,
                 children: [
-                  Icon(Icons.task_outlined,color: Colors.white,),
+                  Icon(Icons.task_outlined, color: Colors.white),
                   Text(
                     "Todo Application",
                     style: TextStyle(
